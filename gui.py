@@ -310,19 +310,25 @@ class SimuladorGUI:
                                 print(f"Prazo: {simulacao_obj.prazo_meses}")
                                 print(f"Taxa fixa: {simulacao_obj.taxa_fixa}")
 
+                                print("DEBUG - Preenchendo campos...")
                                 self.entry_aporte_inicial.insert(0, str(simulacao_obj.aporte_inicial))
+                                print(f"DEBUG - Aporte inicial preenchido: {self.entry_aporte_inicial.get()}")
 
                                 # Aporte mensal pode ser None
                                 aporte_mensal = simulacao_obj.aporte_mensal if simulacao_obj.aporte_mensal is not None else 0
                                 self.entry_aporte_mensal.insert(0, str(aporte_mensal))
+                                print(f"DEBUG - Aporte mensal preenchido: {self.entry_aporte_mensal.get()}")
 
                                 self.entry_prazo.insert(0, str(simulacao_obj.prazo_meses))
+                                print(f"DEBUG - Prazo preenchido: {self.entry_prazo.get()}")
 
                                 # Taxa fixa pode ser None se for taxa variável
                                 if simulacao_obj.taxa_fixa is not None:
                                     self.entry_taxa.insert(0, str(simulacao_obj.taxa_fixa))
+                                    print(f"DEBUG - Taxa preenchida: {self.entry_taxa.get()}")
                                 else:
                                     self.entry_taxa.insert(0, "0")
+                                    print("DEBUG - Taxa preenchida com 0 (era None)")
                             else:
                                 print(f"DEBUG - Simulação não encontrada: {self.simulacao_atual}")
 
