@@ -1,371 +1,476 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""
+INTERFACE GRÁFICA DO SISTEMA DE SIMULAÇÃO DE INVESTIMENTOS
+Trabalho de Engenharia de Software
+Curso: Sistemas de Informação - UFSC
+
+Interface simplificada para demonstrar os 3 casos de uso principais
+"""
+
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import filedialog
 from main import SistemaSimulacaoInvestimentos, TipoTaxa
 
-class SimuladorGUI:
+class InterfaceSimulador:
+    """Interface gráfica simplificada do sistema"""
+    
     def __init__(self):
         self.sistema = SistemaSimulacaoInvestimentos()
         self.simulacao_atual = None
 
         # Janela principal
         self.root = Tk()
-        self.root.title("Sistema de Simulação de Investimentos")
-        self.root.geometry("1000x750")
-        self.root.configure(bg='white')
+        self.root.title("Sistema de Simulação de Investimentos - SIN/UFSC")
+        self.root.geometry("900x700")
+        self.root.configure(bg='#f0f0f0')
 
         self.criar_interface()
 
     def criar_interface(self):
-        # Frame principal
-        main_frame = Frame(self.root, bg='white', padx=30, pady=20)
-        main_frame.pack(fill=BOTH, expand=True)
+        """Cria a interface gráfica"""
+        
+        # Título principal
+        titulo = Label(self.root, text="Sistema de Simulação de Investimentos", 
+                      font=('Arial', 18, 'bold'), bg='#f0f0f0', fg='#2c3e50')
+        titulo.pack(pady=(20, 10))
+        
+        # Subtítulo
+        subtitulo = Label(self.root, text="Trabalho de Engenharia de Software - SIN/UFSC", 
+                         font=('Arial', 12), bg='#f0f0f0', fg='#7f8c8d')
+        subtitulo.pack(pady=(0, 30))
+        
+        # Frame principal com abas para os casos de uso
+        notebook = ttk.Notebook(self.root)
+        notebook.pack(fill=BOTH, expand=True, padx=20, pady=10)
+        
+        # UC01 - Criar e Salvar Simulação
+        self.frame_uc01 = self.criar_aba_uc01(notebook)
+        notebook.add(self.frame_uc01, text="UC01 - Criar e Salvar")
+        
+        # UC02 - Editar Simulação  
+        self.frame_uc02 = self.criar_aba_uc02(notebook)
+        notebook.add(self.frame_uc02, text="UC02 - Editar Simulação")
+        
+        # UC03 - Testar Simulação
+        self.frame_uc03 = self.criar_aba_uc03(notebook)
+        notebook.add(self.frame_uc03, text="UC03 - Testar Simulação")
+        
+        # Frame de status na parte inferior
+        self.frame_status = Frame(self.root, bg='#ecf0f1', height=50)
+        self.frame_status.pack(fill=X, side=BOTTOM)
+        
+        self.label_status = Label(self.frame_status, text="Sistema iniciado - Selecione um caso de uso", 
+                                 bg='#ecf0f1', fg='#2c3e50', font=('Arial', 10))
+        self.label_status.pack(pady=15)
 
-        # Título
-        title_label = Label(main_frame, text="Sistema de Simulação de Investimentos",
-                           font=('Arial', 20, 'bold'), bg='white', fg='black')
-        title_label.pack(pady=(0, 30))
+    def criar_aba_uc01(self, parent):
+        """Cria aba do UC01 - Criar e Salvar Simulação"""
+        frame = Frame(parent, bg='white', padx=30, pady=20)
+        
+        # Título da aba
+        Label(frame, text="UC01 - Criar e Salvar Simulação", 
+              font=('Arial', 14, 'bold'), bg='white', fg='#27ae60').pack(pady=(0, 20))
+        
+        Label(frame, text="Implementado por: Nick D", 
+              font=('Arial', 10, 'italic'), bg='white', fg='#7f8c8d').pack(pady=(0, 20))
+        
+        # Seção Criar Nova Simulação
+        grupo_criar = LabelFrame(frame, text="Criar Nova Simulação", font=('Arial', 12, 'bold'))
+        grupo_criar.pack(fill=X, pady=(0, 20))
+        
+        Label(grupo_criar, text="Nome da Simulação:").grid(row=0, column=0, sticky=W, padx=10, pady=10)
+        self.entry_nome_uc01 = Entry(grupo_criar, width=40, font=('Arial', 11))
+        self.entry_nome_uc01.grid(row=0, column=1, padx=10, pady=10)
+        
+        Button(grupo_criar, text="CRIAR SIMULAÇÃO", command=self.criar_simulacao_uc01,
+               bg='#27ae60', fg='white', font=('Arial', 11, 'bold'), padx=20).grid(row=0, column=2, padx=10, pady=10)
+        
+        # Seção Salvar/Carregar
+        grupo_arquivo = LabelFrame(frame, text="Gerenciar Arquivos", font=('Arial', 12, 'bold'))
+        grupo_arquivo.pack(fill=X, pady=(0, 20))
+        
+        Button(grupo_arquivo, text="SALVAR SIMULAÇÃO", command=self.salvar_simulacao_uc01,
+               bg='#3498db', fg='white', font=('Arial', 11, 'bold'), padx=20).pack(side=LEFT, padx=10, pady=10)
+        
+        Button(grupo_arquivo, text="CARREGAR SIMULAÇÃO", command=self.carregar_simulacao_uc01,
+               bg='#9b59b6', fg='white', font=('Arial', 11, 'bold'), padx=20).pack(side=LEFT, padx=10, pady=10)
+        
+        # Lista de simulações
+        grupo_lista = LabelFrame(frame, text="Simulações Criadas", font=('Arial', 12, 'bold'))
+        grupo_lista.pack(fill=BOTH, expand=True)
+        
+        self.lista_simulacoes = Listbox(grupo_lista, height=8, font=('Arial', 10))
+        scrollbar = Scrollbar(grupo_lista, orient=VERTICAL, command=self.lista_simulacoes.yview)
+        self.lista_simulacoes.configure(yscrollcommand=scrollbar.set)
+        
+        self.lista_simulacoes.pack(side=LEFT, fill=BOTH, expand=True, padx=10, pady=10)
+        scrollbar.pack(side=RIGHT, fill=Y, pady=10)
+        
+        Button(grupo_lista, text="ATUALIZAR LISTA", command=self.atualizar_lista_simulacoes,
+               bg='#95a5a6', fg='white', font=('Arial', 10)).pack(pady=5)
+        
+        return frame
 
-        # Frame de entrada
-        input_frame = LabelFrame(main_frame, text="Nova Simulação",
-                                font=('Arial', 14, 'bold'), bg='white', fg='black',
-                                padx=30, pady=20, relief=RIDGE, bd=2)
-        input_frame.pack(fill=X, pady=(0, 20))
+    def criar_aba_uc02(self, parent):
+        """Cria aba do UC02 - Editar Simulação"""
+        frame = Frame(parent, bg='white', padx=30, pady=20)
+        
+        # Título da aba
+        Label(frame, text="UC02 - Editar Simulação", 
+              font=('Arial', 14, 'bold'), bg='white', fg='#e67e22').pack(pady=(0, 20))
+        
+        Label(frame, text="Implementado por: Nick C", 
+              font=('Arial', 10, 'italic'), bg='white', fg='#7f8c8d').pack(pady=(0, 20))
+        
+        # Seleção de simulação
+        grupo_selecao = LabelFrame(frame, text="Selecionar Simulação para Editar", font=('Arial', 12, 'bold'))
+        grupo_selecao.pack(fill=X, pady=(0, 20))
+        
+        self.combo_simulacoes = ttk.Combobox(grupo_selecao, width=50, state="readonly")
+        self.combo_simulacoes.pack(side=LEFT, padx=10, pady=10)
+        
+        Button(grupo_selecao, text="SELECIONAR", command=self.selecionar_simulacao_uc02,
+               bg='#e67e22', fg='white', font=('Arial', 11, 'bold')).pack(side=LEFT, padx=10, pady=10)
+        
+        # Edição de parâmetros
+        grupo_edicao = LabelFrame(frame, text="Editar Parâmetros", font=('Arial', 12, 'bold'))
+        grupo_edicao.pack(fill=X, pady=(0, 20))
+        
+        # Grid de campos editáveis
+        Label(grupo_edicao, text="Nome:").grid(row=0, column=0, sticky=W, padx=10, pady=5)
+        self.entry_nome_uc02 = Entry(grupo_edicao, width=30)
+        self.entry_nome_uc02.grid(row=0, column=1, padx=10, pady=5)
+        
+        Label(grupo_edicao, text="Aporte Inicial (R$):").grid(row=1, column=0, sticky=W, padx=10, pady=5)
+        self.entry_aporte_inicial = Entry(grupo_edicao, width=20)
+        self.entry_aporte_inicial.grid(row=1, column=1, padx=10, pady=5, sticky=W)
+        
+        Label(grupo_edicao, text="Aporte Mensal (R$):").grid(row=2, column=0, sticky=W, padx=10, pady=5)
+        self.entry_aporte_mensal = Entry(grupo_edicao, width=20)
+        self.entry_aporte_mensal.grid(row=2, column=1, padx=10, pady=5, sticky=W)
+        
+        Label(grupo_edicao, text="Prazo (meses):").grid(row=3, column=0, sticky=W, padx=10, pady=5)
+        self.entry_prazo = Entry(grupo_edicao, width=15)
+        self.entry_prazo.grid(row=3, column=1, padx=10, pady=5, sticky=W)
+        
+        Label(grupo_edicao, text="Taxa Mensal (%):").grid(row=4, column=0, sticky=W, padx=10, pady=5)
+        self.entry_taxa = Entry(grupo_edicao, width=15)
+        self.entry_taxa.grid(row=4, column=1, padx=10, pady=5, sticky=W)
+        
+        # Botões de ação
+        frame_botoes = Frame(grupo_edicao)
+        frame_botoes.grid(row=5, column=0, columnspan=2, pady=20)
+        
+        Button(frame_botoes, text="SALVAR ALTERAÇÕES", command=self.salvar_alteracoes_uc02,
+               bg='#e67e22', fg='white', font=('Arial', 11, 'bold'), padx=20).pack(side=LEFT, padx=10)
+        
+        Button(frame_botoes, text="LIMPAR CAMPOS", command=self.limpar_campos_uc02,
+               bg='#95a5a6', fg='white', font=('Arial', 11, 'bold'), padx=20).pack(side=LEFT, padx=10)
+        
+        return frame
 
-        # Grade de campos
-        Label(input_frame, text="Nome:", font=('Arial', 12, 'bold'), bg='white', fg='black').grid(row=0, column=0, sticky=W, pady=8)
-        self.entry_nome = Entry(input_frame, font=('Arial', 12), width=50, bg='lightyellow', fg='black', bd=2, relief=SOLID)
-        self.entry_nome.grid(row=0, column=1, pady=8, padx=(20, 0), sticky=W+E)
-
-        Label(input_frame, text="Aporte Inicial (R$):", font=('Arial', 12, 'bold'), bg='white', fg='black').grid(row=1, column=0, sticky=W, pady=8)
-        self.entry_aporte_inicial = Entry(input_frame, font=('Arial', 12), width=25, bg='lightyellow', fg='black', bd=2, relief=SOLID)
-        self.entry_aporte_inicial.grid(row=1, column=1, pady=8, padx=(20, 0), sticky=W)
-
-        Label(input_frame, text="Aporte Mensal (R$):", font=('Arial', 12, 'bold'), bg='white', fg='black').grid(row=2, column=0, sticky=W, pady=8)
-        self.entry_aporte_mensal = Entry(input_frame, font=('Arial', 12), width=25, bg='lightyellow', fg='black', bd=2, relief=SOLID)
-        self.entry_aporte_mensal.grid(row=2, column=1, pady=8, padx=(20, 0), sticky=W)
-
-        Label(input_frame, text="Prazo (meses):", font=('Arial', 12, 'bold'), bg='white', fg='black').grid(row=3, column=0, sticky=W, pady=8)
-        self.entry_prazo = Entry(input_frame, font=('Arial', 12), width=20, bg='lightyellow', fg='black', bd=2, relief=SOLID)
-        self.entry_prazo.grid(row=3, column=1, pady=8, padx=(20, 0), sticky=W)
-
-        Label(input_frame, text="Taxa Mensal (%):", font=('Arial', 12, 'bold'), bg='white', fg='black').grid(row=4, column=0, sticky=W, pady=8)
-        self.entry_taxa = Entry(input_frame, font=('Arial', 12), width=20, bg='lightyellow', fg='black', bd=2, relief=SOLID)
-        self.entry_taxa.grid(row=4, column=1, pady=8, padx=(20, 0), sticky=W)
-
-        # Configurar expansão da coluna
-        input_frame.columnconfigure(1, weight=1)
-
-        # Frame de botões
-        button_frame = Frame(main_frame, bg='white')
-        button_frame.pack(pady=20)
-
-        Button(button_frame, text="CALCULAR", command=self.calcular_simulacao,
-               bg='green', fg='black', font=('Arial', 12, 'bold'),
-               padx=30, pady=12, cursor='hand2', relief=RAISED, bd=3).pack(side=LEFT, padx=8)
-
-        Button(button_frame, text="LIMPAR", command=self.limpar_campos,
-               bg='orange', fg='black', font=('Arial', 12, 'bold'),
-               padx=30, pady=12, cursor='hand2', relief=RAISED, bd=3).pack(side=LEFT, padx=8)
-
-        Button(button_frame, text="SALVAR JSON", command=self.salvar_json,
-               bg='blue', fg='black', font=('Arial', 12, 'bold'),
-               padx=25, pady=12, cursor='hand2', relief=RAISED, bd=3).pack(side=LEFT, padx=8)
-
-        Button(button_frame, text="CARREGAR JSON", command=self.carregar_json,
-               bg='purple', fg='black', font=('Arial', 12, 'bold'),
-               padx=20, pady=12, cursor='hand2', relief=RAISED, bd=3).pack(side=LEFT, padx=8)
-
-
-        # Frame de resultados
-        result_frame = LabelFrame(main_frame, text="Resultados",
-                                 font=('Arial', 14, 'bold'), bg='white', fg='black',
-                                 padx=20, pady=15, relief=RIDGE, bd=2)
-        result_frame.pack(fill=BOTH, expand=True, pady=(20, 0))
-
-        # Área de texto com scrollbar
-        text_frame = Frame(result_frame, bg='white')
-        text_frame.pack(fill=BOTH, expand=True)
-
-        self.text_resultados = Text(text_frame, font=('Courier New', 11),
-                                   bg='black', fg='lime',
-                                   wrap=WORD, padx=15, pady=15, bd=2, relief=SUNKEN)
-
-        scrollbar = Scrollbar(text_frame, orient=VERTICAL, command=self.text_resultados.yview,
-                             bg='gray', relief=RAISED, bd=2)
-        self.text_resultados.configure(yscrollcommand=scrollbar.set)
-
-        self.text_resultados.pack(side=LEFT, fill=BOTH, expand=True)
-        scrollbar.pack(side=RIGHT, fill=Y)
-
+    def criar_aba_uc03(self, parent):
+        """Cria aba do UC03 - Testar/Calcular Simulação"""
+        frame = Frame(parent, bg='white', padx=30, pady=20)
+        
+        # Título da aba
+        Label(frame, text="UC03 - Testar/Calcular Simulação", 
+              font=('Arial', 14, 'bold'), bg='white', fg='#8e44ad').pack(pady=(0, 20))
+        
+        Label(frame, text="Implementado por: Nick J", 
+              font=('Arial', 10, 'italic'), bg='white', fg='#7f8c8d').pack(pady=(0, 20))
+        
+        # Seleção e teste
+        grupo_teste = LabelFrame(frame, text="Testar Simulação", font=('Arial', 12, 'bold'))
+        grupo_teste.pack(fill=X, pady=(0, 20))
+        
+        self.combo_teste = ttk.Combobox(grupo_teste, width=40, state="readonly")
+        self.combo_teste.pack(side=LEFT, padx=10, pady=10)
+        
+        Button(grupo_teste, text="CALCULAR E TESTAR", command=self.testar_simulacao_uc03,
+               bg='#8e44ad', fg='white', font=('Arial', 11, 'bold'), padx=20).pack(side=LEFT, padx=10, pady=10)
+        
+        # Área de resultados
+        grupo_resultados = LabelFrame(frame, text="Resultados do Teste", font=('Arial', 12, 'bold'))
+        grupo_resultados.pack(fill=BOTH, expand=True)
+        
+        self.text_resultados = Text(grupo_resultados, height=15, font=('Courier New', 10),
+                                  bg='#2c3e50', fg='#ecf0f1', wrap=WORD)
+        scrollbar_texto = Scrollbar(grupo_resultados, orient=VERTICAL, command=self.text_resultados.yview)
+        self.text_resultados.configure(yscrollcommand=scrollbar_texto.set)
+        
+        self.text_resultados.pack(side=LEFT, fill=BOTH, expand=True, padx=10, pady=10)
+        scrollbar_texto.pack(side=RIGHT, fill=Y, pady=10)
+        
         # Mensagem inicial
-        self.text_resultados.insert(END, "=== SISTEMA DE SIMULAÇÃO DE INVESTIMENTOS ===\n\n")
-        self.text_resultados.insert(END, "INSTRUÇÕES:\n")
-        self.text_resultados.insert(END, "1. Preencha todos os campos acima\n")
-        self.text_resultados.insert(END, "2. Clique em CALCULAR para simular\n")
-        self.text_resultados.insert(END, "3. Analise os resultados\n\n")
-        self.text_resultados.insert(END, "FUNCIONALIDADES:\n")
-        self.text_resultados.insert(END, "• CALCULAR: Simula o investimento\n")
-        self.text_resultados.insert(END, "• LIMPAR: Apaga todos os campos\n")
-        self.text_resultados.insert(END, "• SALVAR JSON: Salva simulação em arquivo\n")
-        self.text_resultados.insert(END, "• CARREGAR JSON: Carrega simulação salva\n")
-        self.text_resultados.insert(END, "Pronto para começar!\n")
+        self.text_resultados.insert(END, "=== SISTEMA DE TESTE DE SIMULAÇÕES ===\n\n")
+        self.text_resultados.insert(END, "Instruções:\n")
+        self.text_resultados.insert(END, "1. Selecione uma simulação na lista acima\n")
+        self.text_resultados.insert(END, "2. Clique em 'CALCULAR E TESTAR'\n")
+        self.text_resultados.insert(END, "3. Analise os resultados aqui exibidos\n\n")
+        self.text_resultados.insert(END, "Aguardando seleção de simulação para teste...\n")
+        
+        return frame
 
-    def limpar_campos(self):
-        """Limpa todos os campos"""
-        self.entry_nome.delete(0, END)
+    # Métodos do UC01
+    def criar_simulacao_uc01(self):
+        """UC01 - Cria nova simulação"""
+        nome = self.entry_nome_uc01.get().strip()
+        
+        if not nome:
+            messagebox.showerror("Erro", "Nome da simulação é obrigatório!")
+            return
+        
+        try:
+            id_simulacao = self.sistema.criar_simulacao(nome)
+            self.simulacao_atual = id_simulacao
+            
+            self.entry_nome_uc01.delete(0, END)
+            self.atualizar_lista_simulacoes()
+            self.atualizar_combos()
+            self.atualizar_status(f"Simulação '{nome}' criada com ID: {id_simulacao}")
+            
+            messagebox.showinfo("Sucesso", f"Simulação '{nome}' criada com sucesso!\nID: {id_simulacao}")
+            
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao criar simulação: {str(e)}")
+
+    def salvar_simulacao_uc01(self):
+        """UC01 - Salva simulação atual"""
+        if not self.simulacao_atual:
+            messagebox.showwarning("Aviso", "Nenhuma simulação selecionada para salvar!")
+            return
+        
+        arquivo = filedialog.asksaveasfilename(
+            title="Salvar simulação",
+            defaultextension=".json",
+            filetypes=[("Arquivos JSON", "*.json")]
+        )
+        
+        if arquivo:
+            sucesso, msg = self.sistema.salvar_simulacao(self.simulacao_atual, arquivo)
+            if sucesso:
+                self.atualizar_status(f"Simulação salva: {arquivo}")
+                messagebox.showinfo("Sucesso", msg)
+            else:
+                messagebox.showerror("Erro", msg)
+
+    def carregar_simulacao_uc01(self):
+        """UC01 - Carrega simulação de arquivo"""
+        arquivo = filedialog.askopenfilename(
+            title="Carregar simulação",
+            filetypes=[("Arquivos JSON", "*.json")]
+        )
+        
+        if arquivo:
+            sucesso, resultado = self.sistema.carregar_simulacao(arquivo)
+            if sucesso:
+                self.simulacao_atual = resultado
+                self.atualizar_lista_simulacoes()
+                self.atualizar_combos()
+                self.atualizar_status(f"Simulação carregada: {resultado}")
+                messagebox.showinfo("Sucesso", f"Simulação carregada com ID: {resultado}")
+            else:
+                messagebox.showerror("Erro", resultado)
+
+    def atualizar_lista_simulacoes(self):
+        """Atualiza lista de simulações"""
+        self.lista_simulacoes.delete(0, END)
+        simulacoes = self.sistema.listar_simulacoes()
+        
+        for sim in simulacoes:
+            status = "✓" if sim['calculada'] else "○"
+            texto = f"{status} {sim['id']} - {sim['nome']} ({sim['prazo_meses']} meses)"
+            self.lista_simulacoes.insert(END, texto)
+
+    # Métodos do UC02
+    def selecionar_simulacao_uc02(self):
+        """UC02 - Seleciona simulação para edição"""
+        selecao = self.combo_simulacoes.get()
+        if not selecao:
+            messagebox.showwarning("Aviso", "Selecione uma simulação!")
+            return
+        
+        # Extrai ID da seleção
+        id_simulacao = selecao.split(" - ")[0]
+        self.simulacao_atual = id_simulacao
+        
+        # Carrega dados nos campos
+        self.carregar_dados_edicao(id_simulacao)
+        self.atualizar_status(f"Simulação {id_simulacao} selecionada para edição")
+
+    def carregar_dados_edicao(self, id_simulacao):
+        """Carrega dados da simulação nos campos de edição"""
+        simulacoes = self.sistema.listar_simulacoes()
+        sim_info = next((s for s in simulacoes if s['id'] == id_simulacao), None)
+        
+        if sim_info:
+            # Limpa campos
+            self.limpar_campos_uc02()
+            
+            # Preenche nome
+            self.entry_nome_uc02.insert(0, sim_info['nome'])
+            
+            # Para outros campos, precisaríamos acessar a simulação completa
+            # Por simplicidade, deixamos campos vazios para o usuário preencher
+
+    def salvar_alteracoes_uc02(self):
+        """UC02 - Salva alterações na simulação"""
+        if not self.simulacao_atual:
+            messagebox.showwarning("Aviso", "Nenhuma simulação selecionada!")
+            return
+        
+        try:
+            # Coleta dados dos campos
+            parametros = {}
+            
+            # Nome
+            novo_nome = self.entry_nome_uc02.get().strip()
+            if novo_nome:
+                sucesso, msg = self.sistema.editar_nome_simulacao(self.simulacao_atual, novo_nome)
+                if not sucesso:
+                    messagebox.showerror("Erro", msg)
+                    return
+            
+            # Outros parâmetros
+            if self.entry_aporte_inicial.get():
+                parametros['aporte_inicial'] = float(self.entry_aporte_inicial.get())
+            
+            if self.entry_aporte_mensal.get():
+                parametros['aporte_mensal'] = float(self.entry_aporte_mensal.get())
+            
+            if self.entry_prazo.get():
+                parametros['prazo_meses'] = int(self.entry_prazo.get())
+            
+            if self.entry_taxa.get():
+                parametros['tipo_taxa'] = TipoTaxa.FIXA
+                parametros['taxa_fixa'] = float(self.entry_taxa.get())
+            
+            # Aplica alterações
+            if parametros:
+                sucesso, erros = self.sistema.configurar_simulacao(self.simulacao_atual, **parametros)
+                if sucesso:
+                    self.atualizar_lista_simulacoes()
+                    self.atualizar_combos()
+                    self.atualizar_status("Alterações salvas com sucesso")
+                    messagebox.showinfo("Sucesso", "Alterações salvas com sucesso!")
+                else:
+                    messagebox.showerror("Erro", "\n".join(erros))
+            else:
+                messagebox.showinfo("Info", "Nome atualizado com sucesso!")
+                
+        except ValueError as e:
+            messagebox.showerror("Erro", f"Valores inválidos nos campos: {str(e)}")
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao salvar: {str(e)}")
+
+    def limpar_campos_uc02(self):
+        """Limpa campos de edição"""
+        self.entry_nome_uc02.delete(0, END)
         self.entry_aporte_inicial.delete(0, END)
         self.entry_aporte_mensal.delete(0, END)
         self.entry_prazo.delete(0, END)
         self.entry_taxa.delete(0, END)
-        self.text_resultados.delete(1.0, END)
-        self.simulacao_atual = None
 
-        # Mensagem inicial
-        self.text_resultados.insert(END, "CAMPOS LIMPOS!\n\n")
-        self.text_resultados.insert(END, "Sistema pronto para nova simulação.\n")
-        self.text_resultados.insert(END, "Preencha os campos e clique CALCULAR.\n")
-
-    def validar_campos(self):
-        """Valida e retorna os dados dos campos"""
-        try:
-            nome = self.entry_nome.get().strip()
-            if not nome:
-                raise ValueError("Nome é obrigatório!")
-
-            aporte_inicial = float(self.entry_aporte_inicial.get())
-            if aporte_inicial <= 0:
-                raise ValueError("Aporte inicial deve ser maior que zero!")
-
-            aporte_mensal = float(self.entry_aporte_mensal.get()) if self.entry_aporte_mensal.get() else 0.0
-            if aporte_mensal < 0:
-                raise ValueError("Aporte mensal não pode ser negativo!")
-
-            prazo = int(self.entry_prazo.get())
-            if prazo < 1 or prazo > 360:
-                raise ValueError("Prazo deve estar entre 1 e 360 meses!")
-
-            taxa = float(self.entry_taxa.get())
-            if taxa < 0 or taxa > 100:
-                raise ValueError("Taxa deve estar entre 0% e 100%!")
-
-            return nome, aporte_inicial, aporte_mensal, prazo, taxa
-
-        except ValueError as e:
-            raise e
-
-    def calcular_simulacao(self):
-        """Calcula a simulação"""
-        try:
-            # Validar campos
-            nome, aporte_inicial, aporte_mensal, prazo, taxa = self.validar_campos()
-
-            # Criar simulação
-            id_sim = self.sistema.criar_simulacao(nome)
-
-            # Configurar parâmetros
-            sucesso, erros = self.sistema.configurar_simulacao(
-                id_sim,
-                aporte_inicial=aporte_inicial,
-                aporte_mensal=aporte_mensal,
-                prazo_meses=prazo,
-                tipo_taxa=TipoTaxa.FIXA,
-                taxa_fixa=taxa
-            )
-
-            if not sucesso:
-                messagebox.showerror("ERRO NA CONFIGURAÇÃO", "\n".join(erros))
-                return
-
-            # Calcular
-            sucesso, erros = self.sistema.calcular_simulacao(id_sim)
-            if not sucesso:
-                messagebox.showerror("ERRO NO CÁLCULO", "\n".join(erros))
-                return
-
-            # Obter e exibir resultados
-            resultados = self.sistema.obter_resultados(id_sim)
-            if resultados:
-                self.simulacao_atual = id_sim
-                self.exibir_resultados(nome, resultados, aporte_inicial, aporte_mensal, prazo, taxa)
-                messagebox.showinfo("SUCESSO", "Simulação calculada com sucesso!")
-            else:
-                messagebox.showerror("ERRO", "Falha ao obter resultados da simulação")
-
-        except ValueError as e:
-            messagebox.showerror("ERRO DE VALIDAÇÃO", str(e))
-        except Exception as e:
-            messagebox.showerror("ERRO INESPERADO", f"Erro: {str(e)}")
-
-    def exibir_resultados(self, nome, resultados, aporte_inicial=0, aporte_mensal=0, prazo=0, taxa=0):
-        """Exibe os resultados na área de texto"""
-        self.text_resultados.delete(1.0, END)
-
-        metricas = resultados['metricas_finais']
-
-        # Cabeçalho
-        texto = "=" * 70 + "\n"
-        texto += f"RESULTADO DA SIMULAÇÃO: {nome.upper()}\n"
-        texto += "=" * 70 + "\n\n"
-
-        # Resumo financeiro
-        texto += "RESUMO FINANCEIRO:\n"
-        texto += "-" * 30 + "\n"
-        texto += f"Saldo Final:       R$ {metricas['saldo_final']:>18,.2f}\n"
-        texto += f"Total Investido:   R$ {metricas['total_investido']:>18,.2f}\n"
-        texto += f"Total de Juros:    R$ {metricas['juros_acumulados']:>18,.2f}\n"
-        texto += f"Rentabilidade:        {metricas['rentabilidade_total']:>18.2f}%\n\n"
-
-        # Parâmetros
-        texto += "PARÂMETROS UTILIZADOS:\n"
-        texto += "-" * 25 + "\n"
-        texto += f"Aporte Inicial:    R$ {aporte_inicial:>18,.2f}\n"
-        texto += f"Aporte Mensal:     R$ {aporte_mensal:>18,.2f}\n"
-        texto += f"Prazo:                {prazo:>18} meses\n"
-        texto += f"Taxa Mensal:          {taxa:>18.2f}%\n\n"
-
-        # Detalhes dos últimos meses
-        texto += "EVOLUÇÃO DOS ÚLTIMOS 15 MESES:\n"
-        texto += "-" * 45 + "\n"
-        texto += f"{'Mês':>4} | {'Aporte':>12} | {'Saldo Final':>18}\n"
-        texto += "-" * 45 + "\n"
-
-        for resultado in resultados['resultados_mensais'][-15:]:
-            texto += f"{resultado['mes']:>4} | R$ {resultado['aporte_mes']:>8,.2f} | R$ {resultado['saldo_final']:>14,.2f}\n"
-
-        # Informações adicionais
-        texto += "\n" + "=" * 70 + "\n"
-        texto += f"Simulação completa com {len(resultados['resultados_mensais'])} meses.\n"
-        texto += "Simulação calculada com sucesso!\n"
-        texto += "=" * 70 + "\n"
-
-        self.text_resultados.insert(1.0, texto)
-
-    def salvar_json(self):
-        """Salva simulação em JSON"""
-        if not self.simulacao_atual:
-            messagebox.showwarning("AVISO", "Nenhuma simulação calculada para salvar!")
+    # Métodos do UC03
+    def testar_simulacao_uc03(self):
+        """UC03 - Testa e calcula simulação"""
+        selecao = self.combo_teste.get()
+        if not selecao:
+            messagebox.showwarning("Aviso", "Selecione uma simulação para testar!")
             return
+        
+        # Extrai ID da seleção
+        id_simulacao = selecao.split(" - ")[0]
+        
+        self.text_resultados.delete(1.0, END)
+        self.text_resultados.insert(END, f"Testando simulação {id_simulacao}...\n\n")
+        self.text_resultados.update()
+        
+        try:
+            # Executa o teste
+            resultado = self.sistema.testar_simulacao(id_simulacao)
+            
+            if resultado['sucesso']:
+                self.exibir_resultados_teste(resultado)
+                self.atualizar_status(f"Teste da simulação {id_simulacao} concluído")
+            else:
+                self.text_resultados.insert(END, "ERRO NO TESTE:\n")
+                for erro in resultado['erros']:
+                    self.text_resultados.insert(END, f"- {erro}\n")
+                
+        except Exception as e:
+            self.text_resultados.insert(END, f"ERRO INESPERADO: {str(e)}\n")
 
-        arquivo = filedialog.asksaveasfilename(
-            title="Salvar simulação como:",
-            defaultextension=".json",
-            filetypes=[("Arquivos JSON", "*.json"), ("Todos os arquivos", "*.*")]
-        )
+    def exibir_resultados_teste(self, resultado):
+        """Exibe resultados do teste na área de texto"""
+        self.text_resultados.delete(1.0, END)
+        
+        sim_info = resultado['simulacao']
+        resultados = resultado['resultados']
+        
+        texto = "=" * 60 + "\n"
+        texto += f"RESULTADO DO TESTE - {sim_info['nome'].upper()}\n"
+        texto += "=" * 60 + "\n\n"
+        
+        texto += "MÉTRICAS FINAIS:\n"
+        texto += "-" * 20 + "\n"
+        texto += f"Saldo Final:      R$ {resultados['saldo_final']:>15,.2f}\n"
+        texto += f"Total Investido:  R$ {resultados['total_investido']:>15,.2f}\n"
+        texto += f"Juros Acumulados: R$ {resultados['juros_acumulados']:>15,.2f}\n"
+        texto += f"Rentabilidade:       {resultados['rentabilidade_percentual']:>15.2f}%\n"
+        texto += f"Prazo Simulado:      {resultados['total_meses']:>15} meses\n\n"
+        
+        texto += "ANÁLISE DO INVESTIMENTO:\n"
+        texto += "-" * 25 + "\n"
+        
+        if resultados['rentabilidade_percentual'] > 50:
+            texto += "✓ EXCELENTE rentabilidade obtida!\n"
+        elif resultados['rentabilidade_percentual'] > 20:
+            texto += "✓ BOA rentabilidade obtida!\n"
+        else:
+            texto += "○ Rentabilidade MODERADA\n"
+        
+        ganho_liquido = resultados['saldo_final'] - resultados['total_investido']
+        texto += f"\nGanho líquido: R$ {ganho_liquido:,.2f}\n"
+        
+        if resultados['total_meses'] > 0:
+            ganho_mensal_medio = ganho_liquido / resultados['total_meses']
+            texto += f"Ganho médio mensal: R$ {ganho_mensal_medio:,.2f}\n"
+        
+        texto += "\n" + "=" * 60 + "\n"
+        texto += "TESTE CONCLUÍDO COM SUCESSO!\n"
+        texto += "=" * 60 + "\n"
+        
+        self.text_resultados.insert(END, texto)
 
-        if arquivo:
-            try:
-                sucesso, msg = self.sistema.salvar_simulacao(self.simulacao_atual, arquivo)
-                if sucesso:
-                    messagebox.showinfo("SUCESSO", f"Simulação salva com sucesso!\n\nArquivo: {arquivo}")
-                else:
-                    messagebox.showerror("ERRO", f"Falha ao salvar:\n{msg}")
-            except Exception as e:
-                messagebox.showerror("ERRO", f"Erro ao salvar:\n{str(e)}")
+    # Métodos auxiliares
+    def atualizar_combos(self):
+        """Atualiza comboboxes com lista de simulações"""
+        simulacoes = self.sistema.listar_simulacoes()
+        valores = [f"{s['id']} - {s['nome']}" for s in simulacoes]
+        
+        self.combo_simulacoes['values'] = valores
+        self.combo_teste['values'] = valores
 
-    def carregar_json(self):
-        """Carrega simulação de JSON"""
-        arquivo = filedialog.askopenfilename(
-            title="Carregar simulação:",
-            filetypes=[("Arquivos JSON", "*.json"), ("Todos os arquivos", "*.*")]
-        )
-
-        if arquivo:
-            try:
-                sucesso, resultado = self.sistema.carregar_simulacao(arquivo)
-                if sucesso:
-                    self.simulacao_atual = resultado
-
-                    # Obter dados da simulação carregada
-                    resultados = self.sistema.obter_resultados(self.simulacao_atual)
-                    if resultados:
-                        # Preencher campos da interface
-                        simulacoes = self.sistema.listar_simulacoes()
-                        sim_dados = next((s for s in simulacoes if s['id'] == self.simulacao_atual), None)
-
-                        if sim_dados:
-                            # Limpar campos primeiro SEM chamar limpar_campos() para não resetar a simulacao_atual
-                            self.entry_nome.delete(0, END)
-                            self.entry_aporte_inicial.delete(0, END)
-                            self.entry_aporte_mensal.delete(0, END)
-                            self.entry_prazo.delete(0, END)
-                            self.entry_taxa.delete(0, END)
-
-                            # Preencher com dados carregados
-                            self.entry_nome.insert(0, sim_dados['nome'])
-
-                            # Buscar dados da simulação no sistema
-                            simulacao_obj = self.sistema.gerenciador.obter_simulacao(self.simulacao_atual)
-                            if simulacao_obj:
-                                # Debug - mostrar dados carregados
-                                print(f"DEBUG - Dados carregados:")
-                                print(f"ID: {simulacao_obj.id}")
-                                print(f"Nome: {simulacao_obj.nome}")
-                                print(f"Aporte inicial: {simulacao_obj.aporte_inicial}")
-                                print(f"Aporte mensal: {simulacao_obj.aporte_mensal}")
-                                print(f"Prazo: {simulacao_obj.prazo_meses}")
-                                print(f"Taxa fixa: {simulacao_obj.taxa_fixa}")
-
-                                print("DEBUG - Preenchendo campos...")
-                                self.entry_aporte_inicial.insert(0, str(simulacao_obj.aporte_inicial))
-                                print(f"DEBUG - Aporte inicial preenchido: {self.entry_aporte_inicial.get()}")
-
-                                # Aporte mensal pode ser None
-                                aporte_mensal = simulacao_obj.aporte_mensal if simulacao_obj.aporte_mensal is not None else 0
-                                self.entry_aporte_mensal.insert(0, str(aporte_mensal))
-                                print(f"DEBUG - Aporte mensal preenchido: {self.entry_aporte_mensal.get()}")
-
-                                self.entry_prazo.insert(0, str(simulacao_obj.prazo_meses))
-                                print(f"DEBUG - Prazo preenchido: {self.entry_prazo.get()}")
-
-                                # Taxa fixa pode ser None se for taxa variável
-                                if simulacao_obj.taxa_fixa is not None:
-                                    self.entry_taxa.insert(0, str(simulacao_obj.taxa_fixa))
-                                    print(f"DEBUG - Taxa preenchida: {self.entry_taxa.get()}")
-                                else:
-                                    self.entry_taxa.insert(0, "0")
-                                    print("DEBUG - Taxa preenchida com 0 (era None)")
-                            else:
-                                print(f"DEBUG - Simulação não encontrada: {self.simulacao_atual}")
-
-                        # Exibir resultados carregados
-                        nome_exibir = sim_dados['nome'] if sim_dados else "Simulação Carregada"
-
-                        # Obter parâmetros para exibição
-                        simulacao_obj = self.sistema.gerenciador.obter_simulacao(self.simulacao_atual)
-                        if simulacao_obj:
-                            # Garantir valores válidos para exibição
-                            aporte_inicial = simulacao_obj.aporte_inicial if simulacao_obj.aporte_inicial is not None else 0
-                            aporte_mensal = simulacao_obj.aporte_mensal if simulacao_obj.aporte_mensal is not None else 0
-                            prazo_meses = simulacao_obj.prazo_meses if simulacao_obj.prazo_meses is not None else 0
-                            taxa_fixa = simulacao_obj.taxa_fixa if simulacao_obj.taxa_fixa is not None else 0
-
-                            self.exibir_resultados(
-                                nome_exibir,
-                                resultados,
-                                aporte_inicial,
-                                aporte_mensal,
-                                prazo_meses,
-                                taxa_fixa
-                            )
-                        else:
-                            self.exibir_resultados(nome_exibir, resultados)
-                        messagebox.showinfo("SUCESSO", f"Simulação carregada com sucesso!\n\nArquivo: {arquivo}\nID: {resultado}")
-                    else:
-                        messagebox.showwarning("AVISO", "Simulação carregada mas sem resultados calculados.")
-                else:
-                    messagebox.showerror("ERRO", f"Falha ao carregar simulação:\n{resultado}")
-            except Exception as e:
-                messagebox.showerror("ERRO", f"Erro ao carregar simulação:\n{str(e)}")
+    def atualizar_status(self, mensagem):
+        """Atualiza barra de status"""
+        self.label_status.config(text=mensagem)
 
     def executar(self):
         """Executa a aplicação"""
+        # Atualiza listas iniciais
+        self.atualizar_lista_simulacoes()
+        self.atualizar_combos()
+        
+        # Inicia interface
         self.root.mainloop()
 
+# Execução da aplicação
 if __name__ == '__main__':
-    app = SimuladorGUI()
+    app = InterfaceSimulador()
     app.executar()
