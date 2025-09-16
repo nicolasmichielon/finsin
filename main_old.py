@@ -72,22 +72,22 @@ class Simulacao:
     def validar(self) -> tuple[bool, List[str]]:
         """Valida os dados da simulação"""
         erros = []
-
+        
         # Validação básica dos campos obrigatórios
         if not self.nome or not self.nome.strip():
             erros.append("Nome da simulação é obrigatório")
-
+        
         if self.aporte_inicial is None or self.aporte_inicial <= 0:
             erros.append("Aporte inicial deve ser maior que R$ 0,00")
-
+        
         if self.prazo_meses is None or self.prazo_meses < 1 or self.prazo_meses > 360:
             erros.append("Prazo deve estar entre 1 e 360 meses")
-
+        
         # Validação da taxa
         if self.tipo_taxa == TipoTaxa.FIXA:
             if self.taxa_fixa is None or self.taxa_fixa < 0 or self.taxa_fixa > 100:
                 erros.append("Taxa fixa deve estar entre 0% e 100%")
-
+        
         return len(erros) == 0, erros
 
     def to_dict(self) -> Dict[str, Any]:
@@ -105,34 +105,34 @@ class Simulacao:
             data['data_criacao'] = datetime.fromisoformat(data['data_criacao'])
         if data.get('data_modificacao'):
             data['data_modificacao'] = datetime.fromisoformat(data['data_modificacao'])
-
+        
         data['tipo_taxa'] = TipoTaxa(data['tipo_taxa'])
-
+        
         if data.get('resultados'):
             data['resultados'] = [ResultadoMensal(**r) for r in data['resultados']]
-
+        
         return cls(**data)
 
 # ============================================================================
 # UC01 - CONFIGURAR SIMULAÇÃO (IMPLEMENTADO POR Nick D)
 # ============================================================================
 
-class ConfiguradorSimulacao:
+class GerenciadorSimulacao:
     """
     UC01 - Permite ao usuário configurar simulações
     IMPLEMENTADO POR: Nick D
     """
-
+    
     def __init__(self):
         self.simulacoes: Dict[str, Simulacao] = {}
         self._proximo_id = 1
-
+    
     def _gerar_id(self) -> str:
         """Gera ID único para nova simulação"""
         id_simulacao = f"SIM{self._proximo_id:04d}"
         self._proximo_id += 1
         return id_simulacao
-
+    
     def criar_simulacao(self, nome: str) -> str:
         """
         UC01 - Cria uma nova simulação
@@ -162,7 +162,7 @@ class ConfiguradorSimulacao:
 
         print(f"[UC01] Simulação '{nome}' criada com ID: {simulacao.id} - Nick D")
         return simulacao.id
-
+    
     def configurar_parametros(self, id_simulacao: str, **novos_parametros) -> tuple[bool, List[str]]:
         """
         UC01 - Configura os parâmetros de uma simulação
@@ -211,7 +211,7 @@ class ConfiguradorSimulacao:
             for erro in erros:
                 print(f"[UC01]   - {erro}")
             return False, erros
-
+    
     def editar_nome(self, id_simulacao: str, novo_nome: str) -> tuple[bool, str]:
         """
         UC01 - Edita apenas o nome da simulação
@@ -236,7 +236,7 @@ class ConfiguradorSimulacao:
 
         print(f"[UC01] Nome alterado: '{nome_antigo}' → '{novo_nome.strip()}' - Nick D")
         return True, f"Nome alterado de '{nome_antigo}' para '{novo_nome.strip()}'"
-
+    
     def listar_simulacoes(self) -> List[Dict[str, Any]]:
         """Retorna lista de simulações com informações básicas"""
         return [
@@ -249,7 +249,7 @@ class ConfiguradorSimulacao:
             }
             for s in self.simulacoes.values()
         ]
-
+    
     def obter_simulacao(self, id_simulacao: str) -> Optional[Simulacao]:
         """Obtém simulação por ID"""
         return self.simulacoes.get(id_simulacao)
@@ -263,10 +263,10 @@ class CalculadoraSimulacao:
     UC02 - Permite ao usuário calcular simulações
     IMPLEMENTADO POR: Nick C
     """
-
-    def __init__(self, configurador: ConfiguradorSimulacao):
-        self.configurador = configurador
-
+    
+    def __init__(self, gerenciador: GerenciadorSimulacao):
+        self.gerenciador = gerenciador
+    
     def calcular_simulacao(self, id_simulacao: str) -> tuple[bool, List[str]]:
         """
         UC02 - Calcula a projeção completa da simulação
@@ -278,7 +278,7 @@ class CalculadoraSimulacao:
             Tupla (sucesso, lista_de_erros)
         """
         # Obtém a simulação
-        simulacao = self.configurador.obter_simulacao(id_simulacao)
+        simulacao = self.gerenciador.obter_simulacao(id_simulacao)
         if not simulacao:
             erro = f"Simulação {id_simulacao} não encontrada"
             print(f"[UC02] {erro}")
@@ -307,7 +307,126 @@ class CalculadoraSimulacao:
             erro_msg = f"Erro durante o cálculo: {str(e)}"
             print(f"[UC02] {erro_msg}")
             return False, [erro_msg]
+    
+    def editar_nome(self, id_simulacao: str, novo_nome: str) -> tuple[bool, str]:
+        """
+        UC02 - Edita apenas o nome da simulação
+        
+        Args:
+            id_simulacao: ID da simulação
+            novo_nome: Novo nome
+            
+        Returns:
+            Tupla (sucesso, mensagem)
+        """
+        simulacao = self.gerenciador.obter_simulacao(id_simulacao)
+        if not simulacao:
+            return False, f"Simulação {id_simulacao} não encontrada"
+        
+        if not novo_nome or not novo_nome.strip():
+            return False, "Nome não pode estar vazio"
+        
+        nome_antigo = simulacao.nome
+        simulacao.nome = novo_nome.strip()
+        simulacao.data_modificacao = datetime.now()
+        
+        print(f"[UC02] Nome alterado: '{nome_antigo}' → '{novo_nome.strip()}' - Nick C")
+        return True, f"Nome alterado de '{nome_antigo}' para '{novo_nome.strip()}'"
+    
+    def configurar_taxa_fixa(self, id_simulacao: str, taxa_mensal: float) -> tuple[bool, str]:
+        """
+        UC02 - Configura taxa fixa para a simulação
+        
+        Args:
+            id_simulacao: ID da simulação
+            taxa_mensal: Taxa mensal em porcentagem
+            
+        Returns:
+            Tupla (sucesso, mensagem)
+        """
+        return self.editar_parametros(
+            id_simulacao,
+            tipo_taxa=TipoTaxa.FIXA,
+            taxa_fixa=taxa_mensal
+        )[0], "Taxa fixa configurada"
+    
+    def configurar_aportes(self, id_simulacao: str, aporte_inicial: float, aporte_mensal: float = 0.0) -> tuple[bool, str]:
+        """
+        UC02 - Configura valores de aportes
+        
+        Args:
+            id_simulacao: ID da simulação
+            aporte_inicial: Valor do aporte inicial
+            aporte_mensal: Valor do aporte mensal
+            
+        Returns:
+            Tupla (sucesso, mensagem)
+        """
+        sucesso, erros = self.editar_parametros(
+            id_simulacao,
+            aporte_inicial=aporte_inicial,
+            aporte_mensal=aporte_mensal
+        )
+        
+        if sucesso:
+            return True, f"Aportes configurados: inicial R$ {aporte_inicial:,.2f}, mensal R$ {aporte_mensal:,.2f}"
+        else:
+            return False, "; ".join(erros)
 
+# ============================================================================
+# UC03 - GERENCIAR ARQUIVOS (IMPLEMENTADO POR Nick J)
+# ============================================================================
+
+class GerenciadorArquivos:
+    """
+    UC03 - Permite ao usuário salvar/carregar simulações
+    IMPLEMENTADO POR: Nick J
+    """
+    
+    def __init__(self, gerenciador: GerenciadorSimulacao):
+        self.gerenciador = gerenciador
+    
+    def calcular_simulacao(self, id_simulacao: str) -> tuple[bool, List[str]]:
+        """
+        UC03 - Calcula a projeção completa da simulação
+        
+        Args:
+            id_simulacao: ID da simulação a calcular
+            
+        Returns:
+            Tupla (sucesso, lista_de_erros)
+        """
+        # Obtém a simulação
+        simulacao = self.gerenciador.obter_simulacao(id_simulacao)
+        if not simulacao:
+            erro = f"Simulação {id_simulacao} não encontrada"
+            print(f"[UC03] {erro}")
+            return False, [erro]
+        
+        print(f"[UC03] Iniciando cálculo da simulação: {simulacao.nome} - Nick J")
+        
+        # Valida antes de calcular
+        valida, erros = simulacao.validar()
+        if not valida:
+            print(f"[UC03] Simulação inválida, não é possível calcular")
+            return False, erros
+        
+        try:
+            # Executa o cálculo mês a mês
+            resultados = self._calcular_projecao_mensal(simulacao)
+            
+            # Salva os resultados na simulação
+            simulacao.resultados = resultados
+            simulacao.data_modificacao = datetime.now()
+            
+            print(f"[UC03] Cálculo concluído: {len(resultados)} meses processados - Nick J")
+            return True, []
+            
+        except Exception as e:
+            erro_msg = f"Erro durante o cálculo: {str(e)}"
+            print(f"[UC03] {erro_msg}")
+            return False, [erro_msg]
+    
     def _calcular_projecao_mensal(self, simulacao: Simulacao) -> List[ResultadoMensal]:
         """
         Método interno que executa o cálculo mês a mês
@@ -347,7 +466,7 @@ class CalculadoraSimulacao:
             resultados.append(resultado)
 
         return resultados
-
+    
     def testar_simulacao(self, id_simulacao: str) -> Dict[str, Any]:
         """
         UC02 - Testa a simulação e retorna resumo dos resultados
@@ -371,7 +490,7 @@ class CalculadoraSimulacao:
             }
 
         # Obtém os resultados
-        simulacao = self.configurador.obter_simulacao(id_simulacao)
+        simulacao = self.gerenciador.obter_simulacao(id_simulacao)
         if not simulacao or not simulacao.resultados:
             return {
                 'sucesso': False,
@@ -402,85 +521,22 @@ class CalculadoraSimulacao:
         print(f"[UC02] Teste concluído - Saldo final: R$ {ultimo_resultado.saldo_final:,.2f} - Nick C")
 
         return resumo
-
-# ============================================================================
-# UC03 - GERENCIAR ARQUIVOS (IMPLEMENTADO POR Nick J)
-# ============================================================================
-
-class GerenciadorArquivos:
-    """
-    UC03 - Permite ao usuário salvar/carregar simulações
-    IMPLEMENTADO POR: Nick J
-    """
-
-    def __init__(self, configurador: ConfiguradorSimulacao):
-        self.configurador = configurador
-
-    def salvar_simulacao(self, id_simulacao: str, caminho_arquivo: str) -> tuple[bool, str]:
+    
+    def obter_evolucao_mensal(self, id_simulacao: str) -> Optional[List[Dict[str, Any]]]:
         """
-        UC03 - Salva simulação em arquivo JSON
+        UC02 - Obtém evolução mês a mês para análise
 
         Args:
             id_simulacao: ID da simulação
-            caminho_arquivo: Caminho onde salvar
 
         Returns:
-            Tupla (sucesso, mensagem)
+            Lista com dados mensais ou None se não encontrada
         """
-        if id_simulacao not in self.configurador.simulacoes:
-            return False, f"Simulação {id_simulacao} não encontrada"
+        simulacao = self.gerenciador.obter_simulacao(id_simulacao)
+        if not simulacao or not simulacao.resultados:
+            return None
 
-        try:
-            simulacao = self.configurador.simulacoes[id_simulacao]
-
-            # Converte para dicionário e salva
-            with open(caminho_arquivo, 'w', encoding='utf-8') as arquivo:
-                json.dump(simulacao.to_dict(), arquivo, ensure_ascii=False, indent=2)
-
-            print(f"[UC03] Simulação {id_simulacao} salva em: {caminho_arquivo} - Nick J")
-            return True, f"Simulação salva com sucesso em {caminho_arquivo}"
-
-        except Exception as e:
-            erro_msg = f"Erro ao salvar arquivo: {str(e)}"
-            print(f"[UC03] {erro_msg}")
-            return False, erro_msg
-
-    def carregar_simulacao(self, caminho_arquivo: str) -> tuple[bool, str]:
-        """
-        UC03 - Carrega simulação de arquivo JSON
-
-        Args:
-            caminho_arquivo: Caminho do arquivo
-
-        Returns:
-            Tupla (sucesso, id_simulacao_ou_erro)
-        """
-        try:
-            # Lê arquivo JSON
-            with open(caminho_arquivo, 'r', encoding='utf-8') as arquivo:
-                dados = json.load(arquivo)
-
-            # Cria simulação a partir dos dados
-            simulacao = Simulacao.from_dict(dados)
-
-            # Adiciona ao configurador
-            self.configurador.simulacoes[simulacao.id] = simulacao
-
-            # Atualiza contador de IDs
-            try:
-                num_id = int(simulacao.id[3:])  # Remove "SIM"
-                if num_id >= self.configurador._proximo_id:
-                    self.configurador._proximo_id = num_id + 1
-            except:
-                pass
-
-            print(f"[UC03] Simulação carregada: {simulacao.id} - {simulacao.nome} - Nick J")
-            return True, simulacao.id
-
-        except Exception as e:
-            erro_msg = f"Erro ao carregar arquivo: {str(e)}"
-            print(f"[UC03] {erro_msg}")
-            return False, erro_msg
+        return [resultado.to_dict() for resultado in simulacao.resultados]
 
 # ============================================================================
 # SISTEMA PRINCIPAL - INTEGRAÇÃO DOS CASOS DE USO
@@ -490,53 +546,76 @@ class SistemaSimulacaoInvestimentos:
     """
     Classe principal que integra todos os casos de uso
     """
-
+    
     def __init__(self):
-        self.gerenciador = ConfiguradorSimulacao()
+        self.gerenciador = GerenciadorSimulacao()
+        self.editor = EditorSimulacao(self.gerenciador)
         self.calculadora = CalculadoraSimulacao(self.gerenciador)
-        self.arquivos = GerenciadorArquivos(self.gerenciador)
-
+        
         print("Sistema de Simulação de Investimentos inicializado")
         print("Casos de Uso disponíveis:")
         print("  UC01 - Configurar Simulação (Nick D)")
         print("  UC02 - Calcular Simulação (Nick C)")
         print("  UC03 - Gerenciar Arquivos (Nick J)")
-
+    
     # Métodos do UC01 (Nick D)
     def criar_simulacao(self, nome: str) -> str:
         """UC01 - Criar nova simulação"""
         return self.gerenciador.criar_simulacao(nome)
-
-    def configurar_simulacao(self, id_simulacao: str, **parametros) -> tuple[bool, List[str]]:
-        """UC01 - Configurar parâmetros da simulação"""
-        return self.gerenciador.configurar_parametros(id_simulacao, **parametros)
-
-    def editar_nome_simulacao(self, id_simulacao: str, novo_nome: str) -> tuple[bool, str]:
-        """UC01 - Editar nome da simulação"""
-        return self.gerenciador.editar_nome(id_simulacao, novo_nome)
+    
+    def salvar_simulacao(self, id_simulacao: str, caminho: str) -> tuple[bool, str]:
+        """UC01 - Salvar simulação"""
+        return self.gerenciador.salvar_simulacao(id_simulacao, caminho)
+    
+    def carregar_simulacao(self, caminho: str) -> tuple[bool, str]:
+        """UC01 - Carregar simulação"""
+        return self.gerenciador.carregar_simulacao(caminho)
 
     # Métodos do UC02 (Nick C)
-    def calcular_simulacao(self, id_simulacao: str) -> tuple[bool, List[str]]:
-        """UC02 - Calcular simulação"""
-        return self.calculadora.calcular_simulacao(id_simulacao)
-
-    def testar_simulacao(self, id_simulacao: str) -> Dict[str, Any]:
-        """UC02 - Testar simulação completa"""
-        return self.calculadora.testar_simulacao(id_simulacao)
-
+    def configurar_simulacao(self, id_simulacao: str, **parametros) -> tuple[bool, List[str]]:
+        """UC02 - Configurar parâmetros da simulação"""
+        return self.editor.editar_parametros(id_simulacao, **parametros)
+    
+    def editar_nome_simulacao(self, id_simulacao: str, novo_nome: str) -> tuple[bool, str]:
+        """UC02 - Editar nome da simulação"""
+        return self.editor.editar_nome(id_simulacao, novo_nome)
+    
     # Métodos do UC03 (Nick J)
-    def salvar_simulacao(self, id_simulacao: str, caminho: str) -> tuple[bool, str]:
-        """UC03 - Salvar simulação"""
-        return self.arquivos.salvar_simulacao(id_simulacao, caminho)
-
-    def carregar_simulacao(self, caminho: str) -> tuple[bool, str]:
-        """UC03 - Carregar simulação"""
-        return self.arquivos.carregar_simulacao(caminho)
-
+    def calcular_simulacao(self, id_simulacao: str) -> tuple[bool, List[str]]:
+        """UC03 - Calcular simulação"""
+        return self.calculadora.calcular_simulacao(id_simulacao)
+    
+    def testar_simulacao(self, id_simulacao: str) -> Dict[str, Any]:
+        """UC03 - Testar simulação completa"""
+        return self.calculadora.testar_simulacao(id_simulacao)
+    
     # Métodos auxiliares
     def listar_simulacoes(self) -> List[Dict[str, Any]]:
         """Lista todas as simulações"""
         return self.gerenciador.listar_simulacoes()
+    
+    def obter_resultados(self, id_simulacao: str) -> Optional[Dict[str, Any]]:
+        """Obtém resultados da simulação para visualização"""
+        simulacao = self.gerenciador.obter_simulacao(id_simulacao)
+        if not simulacao or not simulacao.resultados:
+            return None
+        
+        ultimo_resultado = simulacao.resultados[-1]
+        
+        return {
+            'simulacao': {
+                'id': simulacao.id,
+                'nome': simulacao.nome,
+                'prazo_meses': simulacao.prazo_meses
+            },
+            'resultados_mensais': [r.to_dict() for r in simulacao.resultados],
+            'metricas_finais': {
+                'saldo_final': ultimo_resultado.saldo_final,
+                'total_investido': ultimo_resultado.total_investido,
+                'juros_acumulados': ultimo_resultado.juros_acumulados,
+                'rentabilidade_total': ((ultimo_resultado.saldo_final / ultimo_resultado.total_investido - 1) * 100)
+            }
+        }
 
 # ============================================================================
 # EXECUÇÃO PRINCIPAL
