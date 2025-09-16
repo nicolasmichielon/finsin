@@ -6,7 +6,7 @@ Curso: Sistemas de Informação - UFSC
 Membros da Equipe:
 - Nick D: Implementou UC01 - Configurar Simulação
 - Nick C: Implementou UC02 - Calcular Simulação
-- Nick J: Implementou UC03 - Gerenciar Arquivos
+- Nick J: Implementou UC03 - Gerenciar Simulações
 """
 
 import json
@@ -404,12 +404,12 @@ class CalculadoraSimulacao:
         return resumo
 
 # ============================================================================
-# UC03 - GERENCIAR ARQUIVOS (IMPLEMENTADO POR Nick J)
+# UC03 - GERENCIAR SIMULAÇÕES (IMPLEMENTADO POR Nick J)
 # ============================================================================
 
-class GerenciadorArquivos:
+class GerenciadorSimulacoes:
     """
-    UC03 - Permite ao usuário salvar/carregar simulações
+    UC03 - Permite ao usuário gerenciar simulações (salvar/carregar)
     IMPLEMENTADO POR: Nick J
     """
 
@@ -494,13 +494,13 @@ class SistemaSimulacaoInvestimentos:
     def __init__(self):
         self.gerenciador = ConfiguradorSimulacao()
         self.calculadora = CalculadoraSimulacao(self.gerenciador)
-        self.arquivos = GerenciadorArquivos(self.gerenciador)
+        self.arquivos = GerenciadorSimulacoes(self.gerenciador)
 
         print("Sistema de Simulação de Investimentos inicializado")
         print("Casos de Uso disponíveis:")
         print("  UC01 - Configurar Simulação (Nick D)")
         print("  UC02 - Calcular Simulação (Nick C)")
-        print("  UC03 - Gerenciar Arquivos (Nick J)")
+        print("  UC03 - Gerenciar Simulações (Nick J)")
 
     # Métodos do UC01 (Nick D)
     def criar_simulacao(self, nome: str) -> str:

@@ -72,7 +72,7 @@ class InterfaceSimulador:
         titulo.pack(pady=(20, 10))
 
         # Subtítulo
-        subtitulo = tk.Label(self.root, text="Trabalho de Engenharia de Software - SIN/UFSC",
+        subtitulo = tk.Label(self.root, text="Trabalho de Análise e Projeto de Sistemas - SIN/UFSC",
                          font=('Segoe UI', 12),
                          bg=self.cores['bg_principal'],
                          fg=self.cores['texto_secundario'])
