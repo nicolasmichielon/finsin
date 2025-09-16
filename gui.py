@@ -72,6 +72,14 @@ class SimuladorGUI:
                bg='orange', fg='black', font=('Arial', 12, 'bold'),
                padx=30, pady=12, cursor='hand2', relief=RAISED, bd=3).pack(side=LEFT, padx=8)
 
+        Button(button_frame, text="SALVAR JSON", command=self.salvar_json,
+               bg='blue', fg='black', font=('Arial', 12, 'bold'),
+               padx=25, pady=12, cursor='hand2', relief=RAISED, bd=3).pack(side=LEFT, padx=8)
+
+        Button(button_frame, text="CARREGAR JSON", command=self.carregar_json,
+               bg='purple', fg='black', font=('Arial', 12, 'bold'),
+               padx=20, pady=12, cursor='hand2', relief=RAISED, bd=3).pack(side=LEFT, padx=8)
+
 
         # Frame de resultados
         result_frame = LabelFrame(main_frame, text="Resultados",
@@ -103,6 +111,8 @@ class SimuladorGUI:
         self.text_resultados.insert(END, "FUNCIONALIDADES:\n")
         self.text_resultados.insert(END, "• CALCULAR: Simula o investimento\n")
         self.text_resultados.insert(END, "• LIMPAR: Apaga todos os campos\n")
+        self.text_resultados.insert(END, "• SALVAR JSON: Salva simulação em arquivo\n")
+        self.text_resultados.insert(END, "• CARREGAR JSON: Carrega simulação salva\n")
         self.text_resultados.insert(END, "Pronto para começar!\n")
 
     def limpar_campos(self):
@@ -235,6 +245,116 @@ class SimuladorGUI:
 
         self.text_resultados.insert(1.0, texto)
 
+    def salvar_json(self):
+        """Salva simulação em JSON"""
+        if not self.simulacao_atual:
+            messagebox.showwarning("AVISO", "Nenhuma simulação calculada para salvar!")
+            return
+
+        arquivo = filedialog.asksaveasfilename(
+            title="Salvar simulação como:",
+            defaultextension=".json",
+            filetypes=[("Arquivos JSON", "*.json"), ("Todos os arquivos", "*.*")]
+        )
+
+        if arquivo:
+            try:
+                sucesso, msg = self.sistema.salvar_simulacao(self.simulacao_atual, arquivo)
+                if sucesso:
+                    messagebox.showinfo("SUCESSO", f"Simulação salva com sucesso!\n\nArquivo: {arquivo}")
+                else:
+                    messagebox.showerror("ERRO", f"Falha ao salvar:\n{msg}")
+            except Exception as e:
+                messagebox.showerror("ERRO", f"Erro ao salvar:\n{str(e)}")
+
+    def carregar_json(self):
+        """Carrega simulação de JSON"""
+        arquivo = filedialog.askopenfilename(
+            title="Carregar simulação:",
+            filetypes=[("Arquivos JSON", "*.json"), ("Todos os arquivos", "*.*")]
+        )
+
+        if arquivo:
+            try:
+                sucesso, resultado = self.sistema.carregar_simulacao(arquivo)
+                if sucesso:
+                    self.simulacao_atual = resultado
+
+                    # Obter dados da simulação carregada
+                    resultados = self.sistema.obter_resultados(self.simulacao_atual)
+                    if resultados:
+                        # Preencher campos da interface
+                        simulacoes = self.sistema.listar_simulacoes()
+                        sim_dados = next((s for s in simulacoes if s['id'] == self.simulacao_atual), None)
+
+                        if sim_dados:
+                            # Limpar campos primeiro SEM chamar limpar_campos() para não resetar a simulacao_atual
+                            self.entry_nome.delete(0, END)
+                            self.entry_aporte_inicial.delete(0, END)
+                            self.entry_aporte_mensal.delete(0, END)
+                            self.entry_prazo.delete(0, END)
+                            self.entry_taxa.delete(0, END)
+
+                            # Preencher com dados carregados
+                            self.entry_nome.insert(0, sim_dados['nome'])
+
+                            # Buscar dados da simulação no sistema
+                            simulacao_obj = self.sistema.gerenciador.obter_simulacao(self.simulacao_atual)
+                            if simulacao_obj:
+                                # Debug - mostrar dados carregados
+                                print(f"DEBUG - Dados carregados:")
+                                print(f"ID: {simulacao_obj.id}")
+                                print(f"Nome: {simulacao_obj.nome}")
+                                print(f"Aporte inicial: {simulacao_obj.aporte_inicial}")
+                                print(f"Aporte mensal: {simulacao_obj.aporte_mensal}")
+                                print(f"Prazo: {simulacao_obj.prazo_meses}")
+                                print(f"Taxa fixa: {simulacao_obj.taxa_fixa}")
+
+                                self.entry_aporte_inicial.insert(0, str(simulacao_obj.aporte_inicial))
+
+                                # Aporte mensal pode ser None
+                                aporte_mensal = simulacao_obj.aporte_mensal if simulacao_obj.aporte_mensal is not None else 0
+                                self.entry_aporte_mensal.insert(0, str(aporte_mensal))
+
+                                self.entry_prazo.insert(0, str(simulacao_obj.prazo_meses))
+
+                                # Taxa fixa pode ser None se for taxa variável
+                                if simulacao_obj.taxa_fixa is not None:
+                                    self.entry_taxa.insert(0, str(simulacao_obj.taxa_fixa))
+                                else:
+                                    self.entry_taxa.insert(0, "0")
+                            else:
+                                print(f"DEBUG - Simulação não encontrada: {self.simulacao_atual}")
+
+                        # Exibir resultados carregados
+                        nome_exibir = sim_dados['nome'] if sim_dados else "Simulação Carregada"
+
+                        # Obter parâmetros para exibição
+                        simulacao_obj = self.sistema.gerenciador.obter_simulacao(self.simulacao_atual)
+                        if simulacao_obj:
+                            # Garantir valores válidos para exibição
+                            aporte_inicial = simulacao_obj.aporte_inicial if simulacao_obj.aporte_inicial is not None else 0
+                            aporte_mensal = simulacao_obj.aporte_mensal if simulacao_obj.aporte_mensal is not None else 0
+                            prazo_meses = simulacao_obj.prazo_meses if simulacao_obj.prazo_meses is not None else 0
+                            taxa_fixa = simulacao_obj.taxa_fixa if simulacao_obj.taxa_fixa is not None else 0
+
+                            self.exibir_resultados(
+                                nome_exibir,
+                                resultados,
+                                aporte_inicial,
+                                aporte_mensal,
+                                prazo_meses,
+                                taxa_fixa
+                            )
+                        else:
+                            self.exibir_resultados(nome_exibir, resultados)
+                        messagebox.showinfo("SUCESSO", f"Simulação carregada com sucesso!\n\nArquivo: {arquivo}\nID: {resultado}")
+                    else:
+                        messagebox.showwarning("AVISO", "Simulação carregada mas sem resultados calculados.")
+                else:
+                    messagebox.showerror("ERRO", f"Falha ao carregar simulação:\n{resultado}")
+            except Exception as e:
+                messagebox.showerror("ERRO", f"Erro ao carregar simulação:\n{str(e)}")
 
     def executar(self):
         """Executa a aplicação"""
