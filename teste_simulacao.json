@@ -1,0 +1,494 @@
+{
+  "id": "SIM0001",
+  "nome": "Simulação Teste 1",
+  "aporte_inicial": 5000.0,
+  "aporte_mensal": 500.0,
+  "prazo_meses": 60,
+  "tipo_taxa": "fixa",
+  "taxa_fixa": 0.7,
+  "taxas_variaveis": null,
+  "resultados": [
+    {
+      "mes": 1,
+      "aporte_mes": 500.0,
+      "total_investido": 5500.0,
+      "juros_mes": 34.99999999999999,
+      "juros_acumulados": 34.99999999999999,
+      "saldo_final": 5535.0
+    },
+    {
+      "mes": 2,
+      "aporte_mes": 500.0,
+      "total_investido": 6000.0,
+      "juros_mes": 38.745,
+      "juros_acumulados": 73.74499999999999,
+      "saldo_final": 6073.745
+    },
+    {
+      "mes": 3,
+      "aporte_mes": 500.0,
+      "total_investido": 6500.0,
+      "juros_mes": 42.516214999999995,
+      "juros_acumulados": 116.26121499999999,
+      "saldo_final": 6616.2612149999995
+    },
+    {
+      "mes": 4,
+      "aporte_mes": 500.0,
+      "total_investido": 7000.0,
+      "juros_mes": 46.31382850499999,
+      "juros_acumulados": 162.575043505,
+      "saldo_final": 7162.5750435049995
+    },
+    {
+      "mes": 5,
+      "aporte_mes": 500.0,
+      "total_investido": 7500.0,
+      "juros_mes": 50.13802530453499,
+      "juros_acumulados": 212.713068809535,
+      "saldo_final": 7712.713068809535
+    },
+    {
+      "mes": 6,
+      "aporte_mes": 500.0,
+      "total_investido": 8000.0,
+      "juros_mes": 53.98899148166674,
+      "juros_acumulados": 266.70206029120175,
+      "saldo_final": 8266.702060291202
+    },
+    {
+      "mes": 7,
+      "aporte_mes": 500.0,
+      "total_investido": 8500.0,
+      "juros_mes": 57.866914422038406,
+      "juros_acumulados": 324.56897471324015,
+      "saldo_final": 8824.56897471324
+    },
+    {
+      "mes": 8,
+      "aporte_mes": 500.0,
+      "total_investido": 9000.0,
+      "juros_mes": 61.771982822992676,
+      "juros_acumulados": 386.34095753623285,
+      "saldo_final": 9386.340957536233
+    },
+    {
+      "mes": 9,
+      "aporte_mes": 500.0,
+      "total_investido": 9500.0,
+      "juros_mes": 65.70438670275362,
+      "juros_acumulados": 452.04534423898644,
+      "saldo_final": 9952.045344238986
+    },
+    {
+      "mes": 10,
+      "aporte_mes": 500.0,
+      "total_investido": 10000.0,
+      "juros_mes": 69.66431740967289,
+      "juros_acumulados": 521.7096616486593,
+      "saldo_final": 10521.70966164866
+    },
+    {
+      "mes": 11,
+      "aporte_mes": 500.0,
+      "total_investido": 10500.0,
+      "juros_mes": 73.65196763154061,
+      "juros_acumulados": 595.3616292802,
+      "saldo_final": 11095.3616292802
+    },
+    {
+      "mes": 12,
+      "aporte_mes": 500.0,
+      "total_investido": 11000.0,
+      "juros_mes": 77.6675314049614,
+      "juros_acumulados": 673.0291606851614,
+      "saldo_final": 11673.02916068516
+    },
+    {
+      "mes": 13,
+      "aporte_mes": 500.0,
+      "total_investido": 11500.0,
+      "juros_mes": 81.71120412479611,
+      "juros_acumulados": 754.7403648099576,
+      "saldo_final": 12254.740364809957
+    },
+    {
+      "mes": 14,
+      "aporte_mes": 500.0,
+      "total_investido": 12000.0,
+      "juros_mes": 85.78318255366969,
+      "juros_acumulados": 840.5235473636272,
+      "saldo_final": 12840.523547363628
+    },
+    {
+      "mes": 15,
+      "aporte_mes": 500.0,
+      "total_investido": 12500.0,
+      "juros_mes": 89.88366483154539,
+      "juros_acumulados": 930.4072121951726,
+      "saldo_final": 13430.407212195172
+    },
+    {
+      "mes": 16,
+      "aporte_mes": 500.0,
+      "total_investido": 13000.0,
+      "juros_mes": 94.0128504853662,
+      "juros_acumulados": 1024.4200626805389,
+      "saldo_final": 14024.420062680538
+    },
+    {
+      "mes": 17,
+      "aporte_mes": 500.0,
+      "total_investido": 13500.0,
+      "juros_mes": 98.17094043876375,
+      "juros_acumulados": 1122.5910031193025,
+      "saldo_final": 14622.591003119302
+    },
+    {
+      "mes": 18,
+      "aporte_mes": 500.0,
+      "total_investido": 14000.0,
+      "juros_mes": 102.3581370218351,
+      "juros_acumulados": 1224.9491401411376,
+      "saldo_final": 15224.949140141136
+    },
+    {
+      "mes": 19,
+      "aporte_mes": 500.0,
+      "total_investido": 14500.0,
+      "juros_mes": 106.57464398098794,
+      "juros_acumulados": 1331.5237841221256,
+      "saldo_final": 15831.523784122124
+    },
+    {
+      "mes": 20,
+      "aporte_mes": 500.0,
+      "total_investido": 15000.0,
+      "juros_mes": 110.82066648885485,
+      "juros_acumulados": 1442.3444506109804,
+      "saldo_final": 16442.34445061098
+    },
+    {
+      "mes": 21,
+      "aporte_mes": 500.0,
+      "total_investido": 15500.0,
+      "juros_mes": 115.09641115427685,
+      "juros_acumulados": 1557.4408617652573,
+      "saldo_final": 17057.44086176526
+    },
+    {
+      "mes": 22,
+      "aporte_mes": 500.0,
+      "total_investido": 16000.0,
+      "juros_mes": 119.4020860323568,
+      "juros_acumulados": 1676.8429477976142,
+      "saldo_final": 17676.842947797617
+    },
+    {
+      "mes": 23,
+      "aporte_mes": 500.0,
+      "total_investido": 16500.0,
+      "juros_mes": 123.73790063458331,
+      "juros_acumulados": 1800.5808484321976,
+      "saldo_final": 18300.5808484322
+    },
+    {
+      "mes": 24,
+      "aporte_mes": 500.0,
+      "total_investido": 17000.0,
+      "juros_mes": 128.1040659390254,
+      "juros_acumulados": 1928.684914371223,
+      "saldo_final": 18928.684914371224
+    },
+    {
+      "mes": 25,
+      "aporte_mes": 500.0,
+      "total_investido": 17500.0,
+      "juros_mes": 132.50079440059855,
+      "juros_acumulados": 2061.1857087718213,
+      "saldo_final": 19561.185708771824
+    },
+    {
+      "mes": 26,
+      "aporte_mes": 500.0,
+      "total_investido": 18000.0,
+      "juros_mes": 136.92829996140276,
+      "juros_acumulados": 2198.114008733224,
+      "saldo_final": 20198.114008733228
+    },
+    {
+      "mes": 27,
+      "aporte_mes": 500.0,
+      "total_investido": 18500.0,
+      "juros_mes": 141.38679806113257,
+      "juros_acumulados": 2339.500806794357,
+      "saldo_final": 20839.50080679436
+    },
+    {
+      "mes": 28,
+      "aporte_mes": 500.0,
+      "total_investido": 19000.0,
+      "juros_mes": 145.8765056475605,
+      "juros_acumulados": 2485.377312441917,
+      "saldo_final": 21485.37731244192
+    },
+    {
+      "mes": 29,
+      "aporte_mes": 500.0,
+      "total_investido": 19500.0,
+      "juros_mes": 150.39764118709343,
+      "juros_acumulados": 2635.7749536290107,
+      "saldo_final": 22135.774953629014
+    },
+    {
+      "mes": 30,
+      "aporte_mes": 500.0,
+      "total_investido": 20000.0,
+      "juros_mes": 154.95042467540307,
+      "juros_acumulados": 2790.725378304414,
+      "saldo_final": 22790.725378304418
+    },
+    {
+      "mes": 31,
+      "aporte_mes": 500.0,
+      "total_investido": 20500.0,
+      "juros_mes": 159.5350776481309,
+      "juros_acumulados": 2950.260455952545,
+      "saldo_final": 23450.26045595255
+    },
+    {
+      "mes": 32,
+      "aporte_mes": 500.0,
+      "total_investido": 21000.0,
+      "juros_mes": 164.15182319166783,
+      "juros_acumulados": 3114.412279144213,
+      "saldo_final": 24114.412279144217
+    },
+    {
+      "mes": 33,
+      "aporte_mes": 500.0,
+      "total_investido": 21500.0,
+      "juros_mes": 168.8008859540095,
+      "juros_acumulados": 3283.2131650982224,
+      "saldo_final": 24783.213165098226
+    },
+    {
+      "mes": 34,
+      "aporte_mes": 500.0,
+      "total_investido": 22000.0,
+      "juros_mes": 173.48249215568757,
+      "juros_acumulados": 3456.6956572539098,
+      "saldo_final": 25456.695657253913
+    },
+    {
+      "mes": 35,
+      "aporte_mes": 500.0,
+      "total_investido": 22500.0,
+      "juros_mes": 178.19686960077738,
+      "juros_acumulados": 3634.8925268546873,
+      "saldo_final": 26134.892526854692
+    },
+    {
+      "mes": 36,
+      "aporte_mes": 500.0,
+      "total_investido": 23000.0,
+      "juros_mes": 182.94424768798282,
+      "juros_acumulados": 3817.83677454267,
+      "saldo_final": 26817.836774542673
+    },
+    {
+      "mes": 37,
+      "aporte_mes": 500.0,
+      "total_investido": 23500.0,
+      "juros_mes": 187.7248574217987,
+      "juros_acumulados": 4005.5616319644687,
+      "saldo_final": 27505.561631964472
+    },
+    {
+      "mes": 38,
+      "aporte_mes": 500.0,
+      "total_investido": 24000.0,
+      "juros_mes": 192.53893142375128,
+      "juros_acumulados": 4198.10056338822,
+      "saldo_final": 28198.100563388223
+    },
+    {
+      "mes": 39,
+      "aporte_mes": 500.0,
+      "total_investido": 24500.0,
+      "juros_mes": 197.38670394371755,
+      "juros_acumulados": 4395.487267331937,
+      "saldo_final": 28895.48726733194
+    },
+    {
+      "mes": 40,
+      "aporte_mes": 500.0,
+      "total_investido": 25000.0,
+      "juros_mes": 202.26841087132357,
+      "juros_acumulados": 4597.755678203261,
+      "saldo_final": 29597.755678203263
+    },
+    {
+      "mes": 41,
+      "aporte_mes": 500.0,
+      "total_investido": 25500.0,
+      "juros_mes": 207.1842897474228,
+      "juros_acumulados": 4804.939967950683,
+      "saldo_final": 30304.939967950686
+    },
+    {
+      "mes": 42,
+      "aporte_mes": 500.0,
+      "total_investido": 26000.0,
+      "juros_mes": 212.13457977565477,
+      "juros_acumulados": 5017.074547726338,
+      "saldo_final": 31017.07454772634
+    },
+    {
+      "mes": 43,
+      "aporte_mes": 500.0,
+      "total_investido": 26500.0,
+      "juros_mes": 217.11952183408437,
+      "juros_acumulados": 5234.194069560423,
+      "saldo_final": 31734.194069560424
+    },
+    {
+      "mes": 44,
+      "aporte_mes": 500.0,
+      "total_investido": 27000.0,
+      "juros_mes": 222.13935848692296,
+      "juros_acumulados": 5456.3334280473455,
+      "saldo_final": 32456.333428047346
+    },
+    {
+      "mes": 45,
+      "aporte_mes": 500.0,
+      "total_investido": 27500.0,
+      "juros_mes": 227.1943339963314,
+      "juros_acumulados": 5683.527762043677,
+      "saldo_final": 33183.52776204368
+    },
+    {
+      "mes": 46,
+      "aporte_mes": 500.0,
+      "total_investido": 28000.0,
+      "juros_mes": 232.28469433430575,
+      "juros_acumulados": 5915.812456377983,
+      "saldo_final": 33915.812456377986
+    },
+    {
+      "mes": 47,
+      "aporte_mes": 500.0,
+      "total_investido": 28500.0,
+      "juros_mes": 237.41068719464587,
+      "juros_acumulados": 6153.223143572629,
+      "saldo_final": 34653.22314357263
+    },
+    {
+      "mes": 48,
+      "aporte_mes": 500.0,
+      "total_investido": 29000.0,
+      "juros_mes": 242.57256200500836,
+      "juros_acumulados": 6395.795705577637,
+      "saldo_final": 35395.795705577635
+    },
+    {
+      "mes": 49,
+      "aporte_mes": 500.0,
+      "total_investido": 29500.0,
+      "juros_mes": 247.7705699390434,
+      "juros_acumulados": 6643.56627551668,
+      "saldo_final": 36143.56627551668
+    },
+    {
+      "mes": 50,
+      "aporte_mes": 500.0,
+      "total_investido": 30000.0,
+      "juros_mes": 253.00496392861672,
+      "juros_acumulados": 6896.571239445298,
+      "saldo_final": 36896.57123944529
+    },
+    {
+      "mes": 51,
+      "aporte_mes": 500.0,
+      "total_investido": 30500.0,
+      "juros_mes": 258.275998676117,
+      "juros_acumulados": 7154.847238121414,
+      "saldo_final": 37654.84723812141
+    },
+    {
+      "mes": 52,
+      "aporte_mes": 500.0,
+      "total_investido": 31000.0,
+      "juros_mes": 263.5839306668498,
+      "juros_acumulados": 7418.431168788264,
+      "saldo_final": 38418.43116878826
+    },
+    {
+      "mes": 53,
+      "aporte_mes": 500.0,
+      "total_investido": 31500.0,
+      "juros_mes": 268.9290181815178,
+      "juros_acumulados": 7687.360186969781,
+      "saldo_final": 39187.360186969774
+    },
+    {
+      "mes": 54,
+      "aporte_mes": 500.0,
+      "total_investido": 32000.0,
+      "juros_mes": 274.3115213087884,
+      "juros_acumulados": 7961.67170827857,
+      "saldo_final": 39961.67170827856
+    },
+    {
+      "mes": 55,
+      "aporte_mes": 500.0,
+      "total_investido": 32500.0,
+      "juros_mes": 279.7317019579499,
+      "juros_acumulados": 8241.40341023652,
+      "saldo_final": 40741.40341023651
+    },
+    {
+      "mes": 56,
+      "aporte_mes": 500.0,
+      "total_investido": 33000.0,
+      "juros_mes": 285.18982387165556,
+      "juros_acumulados": 8526.593234108175,
+      "saldo_final": 41526.593234108164
+    },
+    {
+      "mes": 57,
+      "aporte_mes": 500.0,
+      "total_investido": 33500.0,
+      "juros_mes": 290.6861526387571,
+      "juros_acumulados": 8817.279386746932,
+      "saldo_final": 42317.27938674692
+    },
+    {
+      "mes": 58,
+      "aporte_mes": 500.0,
+      "total_investido": 34000.0,
+      "juros_mes": 296.2209557072284,
+      "juros_acumulados": 9113.500342454161,
+      "saldo_final": 43113.50034245415
+    },
+    {
+      "mes": 59,
+      "aporte_mes": 500.0,
+      "total_investido": 34500.0,
+      "juros_mes": 301.79450239717903,
+      "juros_acumulados": 9415.29484485134,
+      "saldo_final": 43915.29484485133
+    },
+    {
+      "mes": 60,
+      "aporte_mes": 500.0,
+      "total_investido": 35000.0,
+      "juros_mes": 307.40706391395923,
+      "juros_acumulados": 9722.701908765299,
+      "saldo_final": 44722.70190876529
+    }
+  ],
+  "data_criacao": "2025-09-15T22:15:47.713652",
+  "data_modificacao": "2025-09-15T22:15:47.713705"
+}
