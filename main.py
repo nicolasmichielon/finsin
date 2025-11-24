@@ -533,7 +533,7 @@ class GerenciadorSimulacoes:
             return False, f"Simulação {id_simulacao} não encontrada"
 
         try:
-            simulacao = self.configurador.simulacoes[id_simulacao]
+            simulacao = self.configurador.obter_simulacao(id_simulacao)
 
             # Converte para dicionário e salva
             with open(caminho_arquivo, 'w', encoding='utf-8') as arquivo:
