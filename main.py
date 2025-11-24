@@ -334,6 +334,10 @@ class ConfiguradorSimulacao:
             return simulacao.historico
         return None
 
+    def adicionar_simulacao(self, simulacao: Simulacao) -> None:
+        """Adiciona uma simulação ao dicionário"""
+        self.simulacoes[simulacao.id] = simulacao
+
     def excluir_simulacao(self, id_simulacao: str) -> tuple[bool, str]:
         """
         UC01 - Exclui uma simulação
@@ -566,7 +570,7 @@ class GerenciadorSimulacoes:
             simulacao = Simulacao.from_dict(dados)
 
             # Adiciona ao configurador
-            self.configurador.simulacoes[simulacao.id] = simulacao
+            self.configurador.adicionar_simulacao(simulacao)
 
             # Atualiza contador de IDs
             try:
