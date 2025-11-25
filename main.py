@@ -712,8 +712,8 @@ class GeradorGraficos:
         juros = [r.juros_acumulados for r in simulacao.resultados]
 
         # Gráfico 1: Evolução do Saldo
-        ax1.plot(meses, saldo, 'b-', linewidth=2, label='Saldo Final')
-        ax1.plot(meses, investido, 'g--', linewidth=2, label='Total Investido')
+        line1, = ax1.plot(meses, saldo, 'b-', linewidth=2, label='Saldo Final', marker='o', markersize=4)
+        line2, = ax1.plot(meses, investido, 'g--', linewidth=2, label='Total Investido', marker='s', markersize=4)
         ax1.fill_between(meses, investido, saldo, alpha=0.3, color='green')
         ax1.set_xlabel('Mês')
         ax1.set_ylabel('Valor (R$)')
@@ -722,13 +722,77 @@ class GeradorGraficos:
         ax1.grid(True, alpha=0.3)
 
         # Gráfico 2: Juros Acumulados
-        ax2.plot(meses, juros, 'r-', linewidth=2, label='Juros Acumulados')
+        line3, = ax2.plot(meses, juros, 'r-', linewidth=2, label='Juros Acumulados', marker='o', markersize=4)
         ax2.fill_between(meses, 0, juros, alpha=0.3, color='red')
         ax2.set_xlabel('Mês')
         ax2.set_ylabel('Valor (R$)')
         ax2.set_title('Juros Acumulados')
         ax2.legend()
         ax2.grid(True, alpha=0.3)
+
+        # Adicionar interatividade com hover
+        annot1 = ax1.annotate("", xy=(0,0), xytext=(10,10), textcoords="offset points",
+                             bbox=dict(boxstyle="round", fc="yellow", alpha=0.9),
+                             arrowprops=dict(arrowstyle="->"))
+        annot1.set_visible(False)
+
+        annot2 = ax2.annotate("", xy=(0,0), xytext=(10,10), textcoords="offset points",
+                             bbox=dict(boxstyle="round", fc="yellow", alpha=0.9),
+                             arrowprops=dict(arrowstyle="->"))
+        annot2.set_visible(False)
+
+        def update_annot(line, annot, ind, ax_num):
+            """Atualiza a anotação com os dados do ponto"""
+            x, y = line.get_data()
+            idx = ind["ind"][0]
+            annot.xy = (x[idx], y[idx])
+            
+            mes = int(x[idx])
+            resultado = simulacao.resultados[idx]
+            
+            if ax_num == 1:
+                if line == line1:
+                    texto = f"Mês: {mes}\nSaldo Final: R$ {resultado.saldo_final:,.2f}\nTotal Investido: R$ {resultado.total_investido:,.2f}\nJuros: R$ {resultado.juros_acumulados:,.2f}"
+                else:
+                    texto = f"Mês: {mes}\nTotal Investido: R$ {resultado.total_investido:,.2f}"
+            else:
+                texto = f"Mês: {mes}\nJuros Acumulados: R$ {resultado.juros_acumulados:,.2f}\nJuros do Mês: R$ {resultado.juros_mes:,.2f}"
+            
+            annot.set_text(texto)
+            annot.get_bbox_patch().set_alpha(0.9)
+
+        def hover(event):
+            """Detecta hover sobre os pontos"""
+            if event.inaxes == ax1:
+                vis1 = annot1.get_visible()
+                cont1, ind1 = line1.contains(event)
+                cont2, ind2 = line2.contains(event)
+                
+                if cont1:
+                    update_annot(line1, annot1, ind1, 1)
+                    annot1.set_visible(True)
+                    fig.canvas.draw_idle()
+                elif cont2:
+                    update_annot(line2, annot1, ind2, 1)
+                    annot1.set_visible(True)
+                    fig.canvas.draw_idle()
+                elif vis1:
+                    annot1.set_visible(False)
+                    fig.canvas.draw_idle()
+                    
+            elif event.inaxes == ax2:
+                vis2 = annot2.get_visible()
+                cont3, ind3 = line3.contains(event)
+                
+                if cont3:
+                    update_annot(line3, annot2, ind3, 2)
+                    annot2.set_visible(True)
+                    fig.canvas.draw_idle()
+                elif vis2:
+                    annot2.set_visible(False)
+                    fig.canvas.draw_idle()
+
+        fig.canvas.mpl_connect("motion_notify_event", hover)
 
         plt.tight_layout()
         return fig
@@ -760,7 +824,7 @@ class GeradorGraficos:
         colors = ['#4CAF50', '#FF9800']
         explode = (0.05, 0.05)
 
-        ax.pie(valores, labels=labels, colors=colors, autopct='%1.1f%%',
+        wedges, texts, autotexts = ax.pie(valores, labels=labels, colors=colors, autopct='%1.1f%%',
                startangle=90, explode=explode, shadow=True)
         ax.axis('equal')
 
@@ -770,7 +834,50 @@ class GeradorGraficos:
             f'Juros Acumulados: R$ {ultimo.juros_acumulados:,.2f}',
             f'Saldo Final: R$ {ultimo.saldo_final:,.2f}'
         ]
-        ax.text(0, -1.3, '\n'.join(legenda_texto), ha='center', fontsize=10)
+        legenda_label = ax.text(0, -1.3, '\n'.join(legenda_texto), ha='center', fontsize=10)
+
+        # Adicionar interatividade com hover
+        annot = ax.annotate("", xy=(0,0), xytext=(20,20), textcoords="offset points",
+                           bbox=dict(boxstyle="round", fc="yellow", alpha=0.9),
+                           arrowprops=dict(arrowstyle="->", connectionstyle="arc3,rad=0"))
+        annot.set_visible(False)
+
+        def hover_pie(event):
+            """Detecta hover sobre as fatias do gráfico de pizza"""
+            if event.inaxes == ax:
+                for i, wedge in enumerate(wedges):
+                    cont, _ = wedge.contains(event)
+                    if cont:
+                        # Calcula percentual
+                        percentual = (valores[i] / ultimo.saldo_final) * 100
+                        
+                        # Monta texto com informações detalhadas
+                        if i == 0:  # Total Investido
+                            texto = f"{labels[i]}\nR$ {valores[i]:,.2f}\n{percentual:.1f}% do total\n\nAporte Inicial: R$ {simulacao.aporte_inicial:,.2f}\nAportes Mensais: R$ {(valores[i] - simulacao.aporte_inicial):,.2f}"
+                        else:  # Juros Acumulados
+                            rentabilidade = ((ultimo.saldo_final / ultimo.total_investido - 1) * 100)
+                            texto = f"{labels[i]}\nR$ {valores[i]:,.2f}\n{percentual:.1f}% do total\n\nRentabilidade: {rentabilidade:.2f}%\nMeses: {len(simulacao.resultados)}"
+                        
+                        annot.xy = (event.xdata, event.ydata)
+                        annot.set_text(texto)
+                        annot.set_visible(True)
+                        
+                        # Destaca a fatia
+                        wedge.set_edgecolor('white')
+                        wedge.set_linewidth(3)
+                        
+                        fig.canvas.draw_idle()
+                        return
+                    else:
+                        wedge.set_linewidth(1)
+                        wedge.set_edgecolor('white')
+                
+                # Se não está sobre nenhuma fatia
+                if annot.get_visible():
+                    annot.set_visible(False)
+                    fig.canvas.draw_idle()
+
+        fig.canvas.mpl_connect("motion_notify_event", hover_pie)
 
         return fig
 
@@ -871,18 +978,71 @@ class ComparadorSimulacoes:
 
         # Gráfico 1: Saldo Final
         cores = plt.cm.viridis([i/len(sims_calculadas) for i in range(len(sims_calculadas))])
-        ax1.bar(nomes, saldos, color=cores)
+        bars1 = ax1.bar(nomes, saldos, color=cores)
         ax1.set_title('Saldo Final')
         ax1.set_ylabel('Valor (R$)')
         ax1.tick_params(axis='x', rotation=45)
         ax1.grid(True, alpha=0.3, axis='y')
 
         # Gráfico 2: Rentabilidade
-        ax2.bar(nomes, rentabilidades, color=cores)
+        bars2 = ax2.bar(nomes, rentabilidades, color=cores)
         ax2.set_title('Rentabilidade (%)')
         ax2.set_ylabel('Percentual (%)')
         ax2.tick_params(axis='x', rotation=45)
         ax2.grid(True, alpha=0.3, axis='y')
+
+        # Adicionar interatividade com hover
+        annot1 = ax1.annotate("", xy=(0,0), xytext=(10,10), textcoords="offset points",
+                             bbox=dict(boxstyle="round", fc="yellow", alpha=0.9),
+                             arrowprops=dict(arrowstyle="->"))
+        annot1.set_visible(False)
+
+        annot2 = ax2.annotate("", xy=(0,0), xytext=(10,10), textcoords="offset points",
+                             bbox=dict(boxstyle="round", fc="yellow", alpha=0.9),
+                             arrowprops=dict(arrowstyle="->"))
+        annot2.set_visible(False)
+
+        def hover_bar(event):
+            """Detecta hover sobre as barras"""
+            if event.inaxes == ax1:
+                for i, bar in enumerate(bars1):
+                    if bar.contains(event)[0]:
+                        sim = sims_calculadas[i]
+                        texto = f"{sim['nome']}\n\nSaldo Final: R$ {sim['saldo_final']:,.2f}\nTotal Investido: R$ {sim['total_investido']:,.2f}\nJuros: R$ {sim['juros_acumulados']:,.2f}\nPrazo: {sim['prazo_meses']} meses"
+                        annot1.xy = (bar.get_x() + bar.get_width()/2, bar.get_height())
+                        annot1.set_text(texto)
+                        annot1.set_visible(True)
+                        bar.set_edgecolor('white')
+                        bar.set_linewidth(2)
+                        fig.canvas.draw_idle()
+                        return
+                    else:
+                        bar.set_linewidth(0)
+                
+                if annot1.get_visible():
+                    annot1.set_visible(False)
+                    fig.canvas.draw_idle()
+                    
+            elif event.inaxes == ax2:
+                for i, bar in enumerate(bars2):
+                    if bar.contains(event)[0]:
+                        sim = sims_calculadas[i]
+                        texto = f"{sim['nome']}\n\nRentabilidade: {sim['rentabilidade']:.2f}%\nSaldo Final: R$ {sim['saldo_final']:,.2f}\nInvestido: R$ {sim['total_investido']:,.2f}\nPrazo: {sim['prazo_meses']} meses"
+                        annot2.xy = (bar.get_x() + bar.get_width()/2, bar.get_height())
+                        annot2.set_text(texto)
+                        annot2.set_visible(True)
+                        bar.set_edgecolor('white')
+                        bar.set_linewidth(2)
+                        fig.canvas.draw_idle()
+                        return
+                    else:
+                        bar.set_linewidth(0)
+                
+                if annot2.get_visible():
+                    annot2.set_visible(False)
+                    fig.canvas.draw_idle()
+
+        fig.canvas.mpl_connect("motion_notify_event", hover_bar)
 
         plt.tight_layout()
         return fig
